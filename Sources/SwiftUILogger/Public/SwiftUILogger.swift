@@ -135,12 +135,10 @@ open class SwiftUILogger: ObservableObject {
         lock.lock()
         defer { lock.unlock() }
 
-        let loggerName = name.map { "[\($0)]" } ?? ""
-
         logs.append(
             Event(
                 level: level,
-                message: loggerName + message,
+                message: message,
                 error: error,
                 file,
                 line

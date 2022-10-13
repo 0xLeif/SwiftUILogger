@@ -24,9 +24,10 @@ public struct LoggerView: View {
                     } else {
                         ScrollView {
                             LazyVStack {
-                                ForEach((logger.logs.count - 1 ... 0), id: \.self) { index in
+                                let logCount = logger.logs.count - 1
+                                ForEach(0 ... logCount, id: \.self) { index in
                                     LogEventView(
-                                        event: logger.logs[index],
+                                        event: logger.logs[logCount - index],
                                         isMinimal: isMinimal
                                     )
                                     .padding(.horizontal, 4)
@@ -35,7 +36,7 @@ public struct LoggerView: View {
                         }
                     }
                 }
-                .navigationTitle("\(logger.logs.count) Events")
+                .navigationTitle("\(logger.logs.count) \(logger.name.map { "\($0) " } ?? "")Events")
                 .toolbar {
                     HStack {
                         Button(
