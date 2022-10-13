@@ -1,51 +1,65 @@
 import SwiftUI
 
 public struct LoggerView: View {
-    @StateObject private var logger: SwiftUILogger = .default
+    @ObservedObject private var logger: SwiftUILogger
     @State private var isMinimal: Bool = true
 
     private let shareAction: (String) -> Void
 
     public init(
+        logger: SwiftUILogger = .default,
         shareAction: @escaping (String) -> Void = { print($0) }
     ) {
+        self.logger = logger
         self.shareAction = shareAction
     }
 
     public var body: some View {
-        navigation {
-            ScrollView {
-                LazyVStack {
-                    ForEach(logger.logs.reversed()) { event in
-                        LogEventView(event: event, isMinimal: isMinimal)
-                            .padding(.horizontal, 4)
+
+            navigation {
+                Group {
+                    if logger.logs.isEmpty {
+                        Text("Logs will show up here!")
+                            .font(.largeTitle)
+                    } else {
+                        ScrollView {
+                            LazyVStack {
+                                ForEach((logger.logs.count - 1 ... 0), id: \.self) { index in
+                                    LogEventView(
+                                        event: logger.logs[index],
+                                        isMinimal: isMinimal
+                                    )
+                                    .padding(.horizontal, 4)
+                                }
+                            }
+                        }
                     }
                 }
-            }
-            .navigationTitle("\(logger.logs.count) Events")
-            .toolbar {
-                HStack {
-                    Button(
-                        action: {
-                            shareAction(logger.blob)
-                        },
-                        label: {
-                            Image(systemName: "square.and.arrow.up")
-                        }
-                    )
-
-                    Button(
-                        action: {
-                            withAnimation {
-                                isMinimal.toggle()
+                .navigationTitle("\(logger.logs.count) Events")
+                .toolbar {
+                    HStack {
+                        Button(
+                            action: {
+                                shareAction(logger.blob)
+                            },
+                            label: {
+                                Image(systemName: "square.and.arrow.up")
                             }
-                        },
-                        label: {
-                            Image(systemName: isMinimal ? "list.bullet.circle" : "list.bullet.circle.fill")
-                        }
-                    )
+                        )
+
+                        Button(
+                            action: {
+                                withAnimation {
+                                    isMinimal.toggle()
+                                }
+                            },
+                            label: {
+                                Image(systemName: isMinimal ? "list.bullet.circle" : "list.bullet.circle.fill")
+                            }
+                        )
+                    }
+                    .disabled(logger.logs.isEmpty)
                 }
-            }
         }
     }
 
@@ -65,6 +79,14 @@ public struct LoggerView: View {
 
 struct LoggerView_Previews: PreviewProvider {
     static var previews: some View {
-        LoggerView()
+        LoggerView(
+            logger: SwiftUILogger(
+                name: "Preview",
+                logs: [
+                    .init(level: .success, message: "init")
+                ]
+            )
+        )
     }
 }
+

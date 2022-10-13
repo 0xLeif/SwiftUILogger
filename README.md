@@ -4,13 +4,15 @@
 
 ## What is SwiftUILogger?
 
-A single SwiftUI view that consolidates all log events using a singleton.
+TODO
 
 ## Why use SwiftUILogger?
 
-Global app logging.
+TODO
 
 ## Example Usage
+
+TODO
 
 ```swift
 import SwiftUI

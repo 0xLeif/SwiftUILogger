@@ -1,6 +1,6 @@
 import SwiftUI
 
-public class SwiftUILogger: ObservableObject {
+open class SwiftUILogger: ObservableObject {
     public enum Level: Int {
         case success, info, warning, error, fatal
 
@@ -85,10 +85,16 @@ public class SwiftUILogger: ObservableObject {
 
     public static var `default`: SwiftUILogger = SwiftUILogger()
 
+    private var lock: NSLock
+
+    public let name: String?
     @Published public var logs: [Event]
 
-    var blob: String {
-        logs
+    open var blob: String {
+        lock.lock()
+        defer { lock.unlock() }
+
+        return logs
             .map { (event) -> String in
                 let date = Event.dateFormatter.string(from: event.dateCreated)
                 let time = Event.timeFormatter.string(from: event.dateCreated)
@@ -104,47 +110,45 @@ public class SwiftUILogger: ObservableObject {
             .joined(separator: "\n")
     }
 
-    private init() {
-        logs = []
+    public init(
+        name: String? = nil,
+        logs: [Event] = []
+    ) {
+        self.lock = NSLock()
+        self.name = name
+        self.logs = logs
     }
 
-    public func log(
+    open func log(
         level: Level,
         message: String,
         error: Error? = nil,
         _ file: StaticString = #fileID,
         _ line: Int = #line
     ) {
+        guard Thread.isMainThread else {
+            return DispatchQueue.main.async {
+                self.log(level: level, message: message, error: error, file, line)
+            }
+        }
+
+        lock.lock()
+        defer { lock.unlock() }
+
+        let loggerName = name.map { "[\($0)]" } ?? ""
+
         logs.append(
             Event(
                 level: level,
-                message: message,
+                message: loggerName + message,
                 error: error,
                 file,
                 line
             )
         )
     }
-}
 
-public extension SwiftUILogger {
-    static func log(
-        level: Level,
-        message: String,
-        error: Error? = nil,
-        _ file: StaticString = #fileID,
-        _ line: Int = #line
-    ) {
-        SwiftUILogger.default.log(
-            level: level,
-            message: message,
-            error: error,
-            file,
-            line
-        )
-    }
-
-    static func success(
+    open func success(
         message: String,
         _ file: StaticString = #fileID,
         _ line: Int = #line
@@ -158,7 +162,7 @@ public extension SwiftUILogger {
         )
     }
 
-    static func info(
+    open func info(
         message: String,
         _ file: StaticString = #fileID,
         _ line: Int = #line
@@ -172,7 +176,7 @@ public extension SwiftUILogger {
         )
     }
 
-    static func warning(
+    open func warning(
         message: String,
         _ file: StaticString = #fileID,
         _ line: Int = #line
@@ -186,7 +190,7 @@ public extension SwiftUILogger {
         )
     }
 
-    static func error(
+    open func error(
         message: String,
         error: Error?,
         _ file: StaticString = #fileID,
@@ -201,7 +205,7 @@ public extension SwiftUILogger {
         )
     }
 
-    static func fatal(
+    open func fatal(
         message: String,
         error: Error?,
         _ file: StaticString = #fileID,
