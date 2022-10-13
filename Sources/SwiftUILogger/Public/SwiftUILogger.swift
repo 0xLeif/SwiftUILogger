@@ -87,6 +87,23 @@ public class SwiftUILogger: ObservableObject {
 
     @Published public var logs: [Event]
 
+    var blob: String {
+        logs
+            .map { (event) -> String in
+                let date = Event.dateFormatter.string(from: event.dateCreated)
+                let time = Event.timeFormatter.string(from: event.dateCreated)
+                let emoji = event.level.emoji.description
+                let eventMessage = "\(date) \(time) \(emoji): \(event.message) (File: \(event.metadata.file)@\(event.metadata.line))"
+
+                guard let error = event.error else {
+                    return eventMessage
+                }
+
+                return eventMessage + "(Error: \(error.localizedDescription))"
+            }
+            .joined(separator: "\n")
+    }
+
     private init() {
         logs = []
     }
@@ -111,20 +128,91 @@ public class SwiftUILogger: ObservableObject {
 }
 
 public extension SwiftUILogger {
-    var blob: String {
-        logs
-            .map { (event) -> String in
-                let date = Event.dateFormatter.string(from: event.dateCreated)
-                let time = Event.timeFormatter.string(from: event.dateCreated)
-                let emoji = event.level.emoji.description
-                let eventMessage = "\(date) \(time) \(emoji): \(event.message) (File: \(event.metadata.file)@\(event.metadata.line))"
+    static func log(
+        level: Level,
+        message: String,
+        error: Error? = nil,
+        _ file: StaticString = #fileID,
+        _ line: Int = #line
+    ) {
+        SwiftUILogger.default.log(
+            level: level,
+            message: message,
+            error: error,
+            file,
+            line
+        )
+    }
 
-                guard let error = event.error else {
-                    return eventMessage
-                }
+    static func success(
+        message: String,
+        _ file: StaticString = #fileID,
+        _ line: Int = #line
+    ) {
+        log(
+            level: .success,
+            message: message,
+            error: nil,
+            file,
+            line
+        )
+    }
 
-                return eventMessage + "(Error: \(error.localizedDescription))"
-            }
-            .joined(separator: "\n")
+    static func info(
+        message: String,
+        _ file: StaticString = #fileID,
+        _ line: Int = #line
+    ) {
+        log(
+            level: .info,
+            message: message,
+            error: nil,
+            file,
+            line
+        )
+    }
+
+    static func warning(
+        message: String,
+        _ file: StaticString = #fileID,
+        _ line: Int = #line
+    ) {
+        log(
+            level: .warning,
+            message: message,
+            error: nil,
+            file,
+            line
+        )
+    }
+
+    static func error(
+        message: String,
+        error: Error?,
+        _ file: StaticString = #fileID,
+        _ line: Int = #line
+    ) {
+        log(
+            level: .error,
+            message: message,
+            error: error,
+            file,
+            line
+        )
+    }
+
+    static func fatal(
+        message: String,
+        error: Error?,
+        _ file: StaticString = #fileID,
+        _ line: Int = #line
+    ) {
+        log(
+            level: .fatal,
+            message: message,
+            error: error,
+            file,
+            line
+        )
     }
 }
