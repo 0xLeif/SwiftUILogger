@@ -1,24 +1,22 @@
 # SwiftUILogger
 
-*TODO*
+*Logging to a SwiftUI View*
 
 ## What is SwiftUILogger?
 
-TODO
+SwiftUILogger allows you to log events by reference. Then you can display all the events using the LoggerView and passing the logger into the initalizer.
 
 ## Why use SwiftUILogger?
 
-TODO
+SwiftUILogger can be used while developing and testing your application to quickly see the debug logs without needing to be attached to LLDB session or Xcode.
 
 ## Example Usage
-
-TODO
 
 ```swift
 import SwiftUI
 import SwiftUILogger
 
-let logger = SwiftUILogger.default
+let logger = SwiftUILogger(name: "Demo")
 
 @main
 struct SwiftUILogger_DemoApp: App {
@@ -29,7 +27,7 @@ struct SwiftUILogger_DemoApp: App {
             NavigationStack {
                 ContentView()
                     .sheet(isPresented: $isPresentedLogger) {
-                        LoggerView()
+                        LoggerView(logger: logger)
                     }
                     .toolbar {
                         Button(

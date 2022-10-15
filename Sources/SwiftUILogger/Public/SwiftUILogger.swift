@@ -1,9 +1,11 @@
 import SwiftUI
 
+///
 open class SwiftUILogger: ObservableObject {
+    ///
     public enum Level: Int {
         case success, info, warning, error, fatal
-
+        
         var color: Color {
             switch self {
             case .success: return .green
@@ -13,7 +15,7 @@ open class SwiftUILogger: ObservableObject {
             case .fatal: return .purple
             }
         }
-
+        
         var emoji: Character {
             switch self {
             case .success: return "🟢"
@@ -24,12 +26,13 @@ open class SwiftUILogger: ObservableObject {
             }
         }
     }
-
+    
+    ///
     public struct Event: Identifiable {
         public struct Metadata {
             public let file: StaticString
             public let line: Int
-
+            
             public init(
                 file: StaticString,
                 line: Int
@@ -38,32 +41,44 @@ open class SwiftUILogger: ObservableObject {
                 self.line = line
             }
         }
-
+        
         static let dateFormatter: DateFormatter = {
             var formatter = DateFormatter()
-
+            
             formatter.timeStyle = .none
             formatter.dateStyle = .short
-
+            
             return formatter
         }()
-
+        
         static let timeFormatter: DateFormatter = {
             var formatter = DateFormatter()
-
+            
             formatter.timeStyle = .long
             formatter.dateStyle = .none
-
+            
             return formatter
         }()
-
+        
+        ///
         public let id: UUID
+        
+        ///
         public let dateCreated: Date
+        
+        ///
         public let level: Level
+        
+        ///
         public let message: String
+        
+        ///
         public let error: Error?
+        
+        ///
         public let metadata: Metadata
-
+        
+        ///
         public init(
             level: Level,
             message: String,
@@ -82,34 +97,40 @@ open class SwiftUILogger: ObservableObject {
             )
         }
     }
-
+    
+    ///
     public static var `default`: SwiftUILogger = SwiftUILogger()
-
+    
     private var lock: NSLock
-
+    
+    ///
     public let name: String?
+    
+    ///
     @Published public var logs: [Event]
-
+    
+    ///
     open var blob: String {
         lock.lock()
         defer { lock.unlock() }
-
+        
         return logs
             .map { (event) -> String in
                 let date = Event.dateFormatter.string(from: event.dateCreated)
                 let time = Event.timeFormatter.string(from: event.dateCreated)
                 let emoji = event.level.emoji.description
                 let eventMessage = "\(date) \(time) \(emoji): \(event.message) (File: \(event.metadata.file)@\(event.metadata.line))"
-
+                
                 guard let error = event.error else {
                     return eventMessage
                 }
-
+                
                 return eventMessage + "(Error: \(error.localizedDescription))"
             }
             .joined(separator: "\n")
     }
-
+    
+    ///
     public init(
         name: String? = nil,
         logs: [Event] = []
@@ -118,7 +139,8 @@ open class SwiftUILogger: ObservableObject {
         self.name = name
         self.logs = logs
     }
-
+    
+    ///
     open func log(
         level: Level,
         message: String,
@@ -131,10 +153,10 @@ open class SwiftUILogger: ObservableObject {
                 self.log(level: level, message: message, error: error, file, line)
             }
         }
-
+        
         lock.lock()
         defer { lock.unlock() }
-
+        
         logs.append(
             Event(
                 level: level,
@@ -145,7 +167,8 @@ open class SwiftUILogger: ObservableObject {
             )
         )
     }
-
+    
+    ///
     open func success(
         message: String,
         _ file: StaticString = #fileID,
@@ -159,7 +182,8 @@ open class SwiftUILogger: ObservableObject {
             line
         )
     }
-
+    
+    ///
     open func info(
         message: String,
         _ file: StaticString = #fileID,
@@ -173,7 +197,8 @@ open class SwiftUILogger: ObservableObject {
             line
         )
     }
-
+    
+    ///
     open func warning(
         message: String,
         _ file: StaticString = #fileID,
@@ -187,7 +212,8 @@ open class SwiftUILogger: ObservableObject {
             line
         )
     }
-
+    
+    ///
     open func error(
         message: String,
         error: Error?,
@@ -202,7 +228,8 @@ open class SwiftUILogger: ObservableObject {
             line
         )
     }
-
+    
+    ///
     open func fatal(
         message: String,
         error: Error?,

@@ -1,11 +1,13 @@
 import SwiftUI
 
+///
 public struct LoggerView: View {
     @ObservedObject private var logger: SwiftUILogger
     @State private var isMinimal: Bool = true
-
+    
     private let shareAction: (String) -> Void
-
+    
+    ///
     public init(
         logger: SwiftUILogger = .default,
         shareAction: @escaping (String) -> Void = { print($0) }
@@ -13,57 +15,57 @@ public struct LoggerView: View {
         self.logger = logger
         self.shareAction = shareAction
     }
-
+    
+    ///
     public var body: some View {
-
-            navigation {
-                Group {
-                    if logger.logs.isEmpty {
-                        Text("Logs will show up here!")
-                            .font(.largeTitle)
-                    } else {
-                        ScrollView {
-                            LazyVStack {
-                                let logCount = logger.logs.count - 1
-                                ForEach(0 ... logCount, id: \.self) { index in
-                                    LogEventView(
-                                        event: logger.logs[logCount - index],
-                                        isMinimal: isMinimal
-                                    )
-                                    .padding(.horizontal, 4)
-                                }
+        navigation {
+            Group {
+                if logger.logs.isEmpty {
+                    Text("Logs will show up here!")
+                        .font(.largeTitle)
+                } else {
+                    ScrollView {
+                        LazyVStack {
+                            let logCount = logger.logs.count - 1
+                            ForEach(0 ... logCount, id: \.self) { index in
+                                LogEventView(
+                                    event: logger.logs[logCount - index],
+                                    isMinimal: isMinimal
+                                )
+                                .padding(.horizontal, 4)
                             }
                         }
                     }
                 }
-                .navigationTitle("\(logger.logs.count) \(logger.name.map { "\($0) " } ?? "")Events")
-                .toolbar {
-                    HStack {
-                        Button(
-                            action: {
-                                shareAction(logger.blob)
-                            },
-                            label: {
-                                Image(systemName: "square.and.arrow.up")
+            }
+            .navigationTitle("\(logger.logs.count) \(logger.name.map { "\($0) " } ?? "")Events")
+            .toolbar {
+                HStack {
+                    Button(
+                        action: {
+                            shareAction(logger.blob)
+                        },
+                        label: {
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                    )
+                    
+                    Button(
+                        action: {
+                            withAnimation {
+                                isMinimal.toggle()
                             }
-                        )
-
-                        Button(
-                            action: {
-                                withAnimation {
-                                    isMinimal.toggle()
-                                }
-                            },
-                            label: {
-                                Image(systemName: isMinimal ? "list.bullet.circle" : "list.bullet.circle.fill")
-                            }
-                        )
-                    }
-                    .disabled(logger.logs.isEmpty)
+                        },
+                        label: {
+                            Image(systemName: isMinimal ? "list.bullet.circle" : "list.bullet.circle.fill")
+                        }
+                    )
                 }
+                .disabled(logger.logs.isEmpty)
+            }
         }
     }
-
+    
     @ViewBuilder
     private func navigation(content: () -> some View) -> some View {
         if #available(iOS 16.0, *) {
