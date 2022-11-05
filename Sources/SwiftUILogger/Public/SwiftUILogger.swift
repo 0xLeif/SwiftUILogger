@@ -32,13 +32,16 @@ open class SwiftUILogger: ObservableObject {
         public struct Metadata {
             public let file: StaticString
             public let line: Int
+            public let tags: [AnyHashable]
             
             public init(
                 file: StaticString,
-                line: Int
+                line: Int,
+                tags: [AnyHashable]
             ) {
                 self.file = file
                 self.line = line
+                self.tags = tags
             }
         }
         
@@ -84,7 +87,8 @@ open class SwiftUILogger: ObservableObject {
             message: String,
             error: Error? = nil,
             _ file: StaticString = #fileID,
-            _ line: Int = #line
+            _ line: Int = #line,
+            _ tags: [AnyHashable] = []
         ) {
             self.id = UUID()
             self.dateCreated = Date()
@@ -93,7 +97,8 @@ open class SwiftUILogger: ObservableObject {
             self.error = error
             self.metadata = .init(
                 file: file,
-                line: line
+                line: line,
+                tags: tags
             )
         }
     }
@@ -146,11 +151,12 @@ open class SwiftUILogger: ObservableObject {
         message: String,
         error: Error? = nil,
         _ file: StaticString = #fileID,
-        _ line: Int = #line
+        _ line: Int = #line,
+        _ tags: [AnyHashable] = []
     ) {
         guard Thread.isMainThread else {
             return DispatchQueue.main.async {
-                self.log(level: level, message: message, error: error, file, line)
+                self.log(level: level, message: message, error: error, file, line, tags)
             }
         }
         
@@ -163,7 +169,8 @@ open class SwiftUILogger: ObservableObject {
                 message: message,
                 error: error,
                 file,
-                line
+                line,
+                tags
             )
         )
     }
@@ -172,14 +179,16 @@ open class SwiftUILogger: ObservableObject {
     open func success(
         message: String,
         _ file: StaticString = #fileID,
-        _ line: Int = #line
+        _ line: Int = #line,
+        _ tags: [AnyHashable]
     ) {
         log(
             level: .success,
             message: message,
             error: nil,
             file,
-            line
+            line,
+            tags
         )
     }
     
@@ -187,14 +196,16 @@ open class SwiftUILogger: ObservableObject {
     open func info(
         message: String,
         _ file: StaticString = #fileID,
-        _ line: Int = #line
+        _ line: Int = #line,
+        _ tags: [AnyHashable]
     ) {
         log(
             level: .info,
             message: message,
             error: nil,
             file,
-            line
+            line,
+            tags
         )
     }
     
@@ -202,14 +213,16 @@ open class SwiftUILogger: ObservableObject {
     open func warning(
         message: String,
         _ file: StaticString = #fileID,
-        _ line: Int = #line
+        _ line: Int = #line,
+        _ tags: [AnyHashable]
     ) {
         log(
             level: .warning,
             message: message,
             error: nil,
             file,
-            line
+            line,
+            tags
         )
     }
     
@@ -218,14 +231,16 @@ open class SwiftUILogger: ObservableObject {
         message: String,
         error: Error?,
         _ file: StaticString = #fileID,
-        _ line: Int = #line
+        _ line: Int = #line,
+        _ tags: [AnyHashable]
     ) {
         log(
             level: .error,
             message: message,
             error: error,
             file,
-            line
+            line,
+            tags
         )
     }
     
@@ -234,14 +249,16 @@ open class SwiftUILogger: ObservableObject {
         message: String,
         error: Error?,
         _ file: StaticString = #fileID,
-        _ line: Int = #line
+        _ line: Int = #line,
+        _ tags: [AnyHashable]
     ) {
         log(
             level: .fatal,
             message: message,
             error: error,
             file,
-            line
+            line,
+            tags
         )
     }
 }
