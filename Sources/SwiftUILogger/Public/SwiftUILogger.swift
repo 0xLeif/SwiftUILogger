@@ -86,9 +86,9 @@ open class SwiftUILogger: ObservableObject {
             level: Level,
             message: String,
             error: Error? = nil,
+            tags: [AnyHashable] = [],
             _ file: StaticString = #fileID,
-            _ line: Int = #line,
-            _ tags: [AnyHashable] = []
+            _ line: Int = #line
         ) {
             self.id = UUID()
             self.dateCreated = Date()
@@ -150,13 +150,13 @@ open class SwiftUILogger: ObservableObject {
         level: Level,
         message: String,
         error: Error? = nil,
+        tags: [AnyHashable] = [],
         _ file: StaticString = #fileID,
-        _ line: Int = #line,
-        _ tags: [AnyHashable] = []
+        _ line: Int = #line
     ) {
         guard Thread.isMainThread else {
             return DispatchQueue.main.async {
-                self.log(level: level, message: message, error: error, file, line, tags)
+                self.log(level: level, message: message, error: error, tags: tags, file, line)
             }
         }
         
@@ -168,9 +168,9 @@ open class SwiftUILogger: ObservableObject {
                 level: level,
                 message: message,
                 error: error,
+                tags: tags,
                 file,
-                line,
-                tags
+                line
             )
         )
     }
@@ -178,51 +178,51 @@ open class SwiftUILogger: ObservableObject {
     ///
     open func success(
         message: String,
+        tags: [AnyHashable],
         _ file: StaticString = #fileID,
-        _ line: Int = #line,
-        _ tags: [AnyHashable]
+        _ line: Int = #line
     ) {
         log(
             level: .success,
             message: message,
             error: nil,
+            tags: tags,
             file,
-            line,
-            tags
+            line
         )
     }
     
     ///
     open func info(
         message: String,
+        tags: [AnyHashable],
         _ file: StaticString = #fileID,
-        _ line: Int = #line,
-        _ tags: [AnyHashable]
+        _ line: Int = #line
     ) {
         log(
             level: .info,
             message: message,
             error: nil,
+            tags: tags,
             file,
-            line,
-            tags
+            line
         )
     }
     
     ///
     open func warning(
         message: String,
+        tags: [AnyHashable],
         _ file: StaticString = #fileID,
-        _ line: Int = #line,
-        _ tags: [AnyHashable]
+        _ line: Int = #line
     ) {
         log(
             level: .warning,
             message: message,
             error: nil,
+            tags: tags,
             file,
-            line,
-            tags
+            line
         )
     }
     
@@ -230,17 +230,17 @@ open class SwiftUILogger: ObservableObject {
     open func error(
         message: String,
         error: Error?,
+        tags: [AnyHashable],
         _ file: StaticString = #fileID,
-        _ line: Int = #line,
-        _ tags: [AnyHashable]
+        _ line: Int = #line
     ) {
         log(
             level: .error,
             message: message,
             error: error,
+            tags: tags,
             file,
-            line,
-            tags
+            line
         )
     }
     
@@ -248,17 +248,17 @@ open class SwiftUILogger: ObservableObject {
     open func fatal(
         message: String,
         error: Error?,
+        tags: [AnyHashable],
         _ file: StaticString = #fileID,
-        _ line: Int = #line,
-        _ tags: [AnyHashable]
+        _ line: Int = #line
     ) {
         log(
             level: .fatal,
             message: message,
             error: error,
+            tags: tags,
             file,
-            line,
-            tags
+            line
         )
     }
 }
