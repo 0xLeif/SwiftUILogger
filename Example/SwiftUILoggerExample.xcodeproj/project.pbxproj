@@ -11,6 +11,7 @@
 		6438B27A291EFD92007DBDA5 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6438B279291EFD92007DBDA5 /* ContentView.swift */; };
 		6438B27C291EFD94007DBDA5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6438B27B291EFD94007DBDA5 /* Assets.xcassets */; };
 		6438B27F291EFD94007DBDA5 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6438B27E291EFD94007DBDA5 /* Preview Assets.xcassets */; };
+		6438B289291EFDBF007DBDA5 /* SwiftUILogger in Frameworks */ = {isa = PBXBuildFile; productRef = 6438B288291EFDBF007DBDA5 /* SwiftUILogger */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,6 +20,7 @@
 		6438B279291EFD92007DBDA5 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		6438B27B291EFD94007DBDA5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6438B27E291EFD94007DBDA5 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		6438B286291EFDAD007DBDA5 /* SwiftUILogger */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = SwiftUILogger; path = ..; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -26,6 +28,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6438B289291EFDBF007DBDA5 /* SwiftUILogger in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -35,8 +38,10 @@
 		6438B26B291EFD92007DBDA5 = {
 			isa = PBXGroup;
 			children = (
+				6438B285291EFDAD007DBDA5 /* Packages */,
 				6438B276291EFD92007DBDA5 /* SwiftUILoggerExample */,
 				6438B275291EFD92007DBDA5 /* Products */,
+				6438B287291EFDBF007DBDA5 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -67,6 +72,21 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
+		6438B285291EFDAD007DBDA5 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				6438B286291EFDAD007DBDA5 /* SwiftUILogger */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		6438B287291EFDBF007DBDA5 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -83,6 +103,9 @@
 			dependencies = (
 			);
 			name = SwiftUILoggerExample;
+			packageProductDependencies = (
+				6438B288291EFDBF007DBDA5 /* SwiftUILogger */,
+			);
 			productName = SwiftUILoggerExample;
 			productReference = 6438B274291EFD92007DBDA5 /* SwiftUILoggerExample.app */;
 			productType = "com.apple.product-type.application";
@@ -195,7 +218,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -249,7 +272,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -337,6 +360,13 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		6438B288291EFDBF007DBDA5 /* SwiftUILogger */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SwiftUILogger;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 6438B26C291EFD92007DBDA5 /* Project object */;
 }

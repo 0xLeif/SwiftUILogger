@@ -2,9 +2,21 @@ import SwiftUI
 
 ///
 public struct LoggerView: View {
+    
     @ObservedObject private var logger: SwiftUILogger
     @State private var isMinimal: Bool = true
+    @State private var isPresentedFilter: Bool = false
     
+    private var tags: [String] {
+        return Array(Set(
+            logger.logs
+                .flatMap { $0.metadata.tags }
+                .map { $0.value }
+        )).sorted()
+    }
+    private var navigationTitle: String {
+        "\(logger.logs.count) \(logger.name.map { "\($0) " } ?? "")Events"
+    }
     private let shareAction: (String) -> Void
     
     ///
@@ -38,28 +50,12 @@ public struct LoggerView: View {
                     }
                 }
             }
-            .navigationTitle("\(logger.logs.count) \(logger.name.map { "\($0) " } ?? "")Events")
+            .navigationTitle(navigationTitle)
             .toolbar {
                 HStack {
-                    Button(
-                        action: {
-                            shareAction(logger.blob)
-                        },
-                        label: {
-                            Image(systemName: "square.and.arrow.up")
-                        }
-                    )
-                    
-                    Button(
-                        action: {
-                            withAnimation {
-                                isMinimal.toggle()
-                            }
-                        },
-                        label: {
-                            Image(systemName: isMinimal ? "list.bullet.circle" : "list.bullet.circle.fill")
-                        }
-                    )
+                    shareBlobButton
+                    filterButton
+                    toggleMinimalButton
                 }
                 .disabled(logger.logs.isEmpty)
             }
@@ -77,6 +73,52 @@ public struct LoggerView: View {
                 content()
             }
         }
+    }
+    
+    private var shareBlobButton: some View {
+        Button(
+            action: {
+                shareAction(logger.blob)
+            },
+            label: {
+                Image(systemName: "square.and.arrow.up")
+            }
+        )
+    }
+    
+    private var filterButton: some View {
+        Button(
+            action: {
+                withAnimation {
+                    isPresentedFilter.toggle()
+                }
+            },
+            label: {
+                Image(systemName: "line.3.horizontal.decrease.circle")
+            }
+        )
+        .sheet(isPresented: $isPresentedFilter) {
+            LogFilterView(
+                isPresented: $isPresentedFilter,
+                tags: tags,
+                saveAction: { selectedTags in
+                    print(selectedTags)
+                }
+            )
+        }
+    }
+    
+    private var toggleMinimalButton: some View {
+        Button(
+            action: {
+                withAnimation {
+                    isMinimal.toggle()
+                }
+            },
+            label: {
+                Image(systemName: isMinimal ? "list.bullet.circle" : "list.bullet.circle.fill")
+            }
+        )
     }
 }
 
