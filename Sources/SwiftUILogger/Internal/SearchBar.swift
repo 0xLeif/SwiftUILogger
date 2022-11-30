@@ -13,7 +13,7 @@ struct SearchBar: View {
     private let placeholder: String
     
     init(searchText: Binding<String>, placeholder: String) {
-        self.searchText = searchText
+        self_.searchText = searchText
         self.placeholder = placeholder
     }
     
