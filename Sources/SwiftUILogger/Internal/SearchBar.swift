@@ -25,7 +25,7 @@ struct SearchBar: View {
             HStack(alignment: .center) {
                 Image(systemName: "magnifyingglass")
                     .imageScale(.medium)
-                TextField(placeholder, text: searchText)
+                TextField(placeholder, text: $searchText)
             }
             .foregroundColor(.gray)
             .padding(.horizontal, 15)
