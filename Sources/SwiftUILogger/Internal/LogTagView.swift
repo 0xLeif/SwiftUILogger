@@ -9,13 +9,14 @@ import SwiftUI
 
 struct LogTagView: View {
     
-    @State private var isSelected: Bool = false
+    @State var isSelected: Bool = false
 
     private let name: String
     private var onTapped: (_ isSelected: Bool) -> Void
     
-    init(name: String, onTapped: @escaping (_ isSelected: Bool) -> Void) {
+    init(name: String, isSelected: Bool, onTapped: @escaping (_ isSelected: Bool) -> Void) {
         self.name = name
+        self.isSelected = isSelected
         self.onTapped = onTapped
     }
     

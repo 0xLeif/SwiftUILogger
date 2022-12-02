@@ -7,22 +7,27 @@
 
 import SwiftUI
 import Combine
+import OrderedCollections
 
 struct LogFilterView: View {
     
     @State private var searchText: String = ""
     @State private var contentSize: CGSize = .zero
     @State private var filteredTags: [String] = []
-    @State private var selectedTags: [String] = []
+    @Binding private var selectedTags: OrderedSet<String>
+    
     private var isPresented: Binding<Bool>
     
     private var allTags: [String]
-    private var saveAction: (_ selectedTags: [String]) -> Void
     
-    init(isPresented: Binding<Bool>, tags: [String], saveAction: @escaping (_ selectedTags: [String]) -> Void) {
+    init(
+        isPresented: Binding<Bool>,
+        tags: [String],
+        selectedTags: Binding<OrderedSet<String>>
+    ) {
         self.isPresented = isPresented
         self.allTags = tags
-        self.saveAction = saveAction
+        self._selectedTags = selectedTags
     }
     
     var body: some View {
@@ -83,6 +88,7 @@ struct LogFilterView: View {
                     ForEach(filteredTags, id: \.self) { tagName in
                         LogTagView(
                             name: tagName,
+                            isSelected: selectedTags.contains(tagName),
                             onTapped: { isTapped in
                                 if isTapped,
                                    let index = filteredTags.firstIndex(of: tagName) {
@@ -111,10 +117,6 @@ struct LogFilterView: View {
     
     private var saveToolbarItem: some View {
         Button("Save") {
-            if selectedTags.count > 0 {
-                saveAction(selectedTags)
-            }
-            
             isPresented.wrappedValue = false
         }
     }

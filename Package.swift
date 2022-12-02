@@ -17,11 +17,18 @@ let package = Package(
             targets: ["SwiftUILogger"]
         )
     ],
-    dependencies: [],
+    dependencies: [
+        .package(
+            url: "https://github.com/apple/swift-collections.git",
+            .upToNextMinor(from: "1.0.0") // or `.upToNextMajor
+        )
+    ],
     targets: [
         .target(
             name: "SwiftUILogger",
-            dependencies: []
+            dependencies: [
+                .product(name: "OrderedCollections", package: "swift-collections")
+            ]
         ),
         .testTarget(
             name: "SwiftUILoggerTests",

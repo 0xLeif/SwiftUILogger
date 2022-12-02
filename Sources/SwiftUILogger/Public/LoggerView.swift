@@ -1,4 +1,5 @@
 import SwiftUI
+import OrderedCollections
 
 ///
 public struct LoggerView: View {
@@ -8,11 +9,19 @@ public struct LoggerView: View {
     @State private var isPresentedFilter: Bool = false
     
     private var tags: [String] {
-        return Array(Set(
+        return OrderedSet(
             logger.logs
                 .flatMap { $0.metadata.tags }
                 .map { $0.value }
-        )).sorted()
+        )
+        .sorted()
+    }
+    
+    @State private var _filteredTags: OrderedSet<String> = []
+    private var filteredTags: OrderedSet<String> {
+        get {
+            _filteredTags.isEmpty ? OrderedSet(tags) : _filteredTags
+        }
     }
     private var navigationTitle: String {
         "\(logger.logs.count) \(logger.name.map { "\($0) " } ?? "")Events"
@@ -40,11 +49,17 @@ public struct LoggerView: View {
                         LazyVStack {
                             let logCount = logger.logs.count - 1
                             ForEach(0 ... logCount, id: \.self) { index in
-                                LogEventView(
-                                    event: logger.logs[logCount - index],
-                                    isMinimal: isMinimal
-                                )
-                                .padding(.horizontal, 4)
+                                let log = logger.logs[logCount - index]
+                                
+                                if log.metadata.tags.first(
+                                    where: { filteredTags.contains($0.value) }
+                                ) != nil {
+                                    LogEventView(
+                                        event: log,
+                                        isMinimal: isMinimal
+                                    )
+                                    .padding(.horizontal, 4)
+                                }
                             }
                         }
                     }
@@ -101,9 +116,7 @@ public struct LoggerView: View {
             LogFilterView(
                 isPresented: $isPresentedFilter,
                 tags: tags,
-                saveAction: { selectedTags in
-                    print(selectedTags)
-                }
+                selectedTags: $_filteredTags
             )
         }
     }
