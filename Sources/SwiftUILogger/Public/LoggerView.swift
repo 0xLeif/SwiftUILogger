@@ -8,13 +8,12 @@ public struct LoggerView: View {
     @State private var isMinimal: Bool = true
     @State private var isPresentedFilter: Bool = false
     
-    private var tags: [String] {
+    private var tags: OrderedSet<String> {
         return OrderedSet(
             logger.logs
                 .flatMap { $0.metadata.tags }
                 .map { $0.value }
         )
-        .sorted()
     }
     
     @State private var _filteredTags: OrderedSet<String> = []
@@ -115,7 +114,7 @@ public struct LoggerView: View {
         .sheet(isPresented: $isPresentedFilter) {
             LogFilterView(
                 isPresented: $isPresentedFilter,
-                tags: tags,
+                allTags: Array(tags),
                 selectedTags: $_filteredTags
             )
         }

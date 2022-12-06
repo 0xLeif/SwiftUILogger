@@ -22,11 +22,11 @@ struct LogFilterView: View {
     
     init(
         isPresented: Binding<Bool>,
-        tags: [String],
+        allTags: [String],
         selectedTags: Binding<OrderedSet<String>>
     ) {
         self.isPresented = isPresented
-        self.allTags = tags
+        self.allTags = allTags
         self._selectedTags = selectedTags
     }
     
