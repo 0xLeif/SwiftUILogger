@@ -13,8 +13,8 @@ struct LogFilterView: View {
     
     @State private var searchText: String = ""
     @State private var contentSize: CGSize = .zero
-    @State private var filteredTags: [String] = []
-    @Binding private var selectedTags: OrderedSet<String>
+    @State private var filteredTags: OrderedSet<String> = []
+    @Binding private var selectedTags: [String]
     
     private var isPresented: Binding<Bool>
     
@@ -23,7 +23,7 @@ struct LogFilterView: View {
     init(
         isPresented: Binding<Bool>,
         allTags: [String],
-        selectedTags: Binding<OrderedSet<String>>
+        selectedTags: Binding<[String]>
     ) {
         self.isPresented = isPresented
         self.allTags = allTags
@@ -93,7 +93,7 @@ struct LogFilterView: View {
                                 if isTapped,
                                    let index = filteredTags.firstIndex(of: tagName) {
                                     selectedTags.append(filteredTags[index])
-                                    
+
                                 } else if let index = selectedTags.firstIndex(of: tagName) {
                                     selectedTags.remove(at: index)
                                 }
@@ -101,9 +101,7 @@ struct LogFilterView: View {
                         )
                     }
                 }
-                .background(
-                    Color.clear
-                )
+                .background(Color.clear)
             }
             .padding(.horizontal, 16)
         }
@@ -116,14 +114,14 @@ struct LogFilterView: View {
     }
     
     private var saveToolbarItem: some View {
-        Button("Save") {
+        Button("Apply") {
             isPresented.wrappedValue = false
         }
     }
     
     // MARK: Helpers
     
-    private func onSearchKeyword(_ keyword: String) -> [String] {
+    private func onSearchKeyword(_ keyword: String) -> OrderedSet<String> {
         let filtered: [String] = allTags.filter {
             $0
                 .lowercased()
@@ -133,6 +131,6 @@ struct LogFilterView: View {
                 ) != nil
         }
 
-        return filtered.isEmpty ? allTags : filtered
+        return filtered.isEmpty ? OrderedSet(allTags) : OrderedSet(filtered)
     }
 }

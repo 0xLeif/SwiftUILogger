@@ -8,18 +8,16 @@ public struct LoggerView: View {
     @State private var isMinimal: Bool = true
     @State private var isPresentedFilter: Bool = false
     
-    private var tags: OrderedSet<String> {
-        return OrderedSet(
-            logger.logs
-                .flatMap { $0.metadata.tags }
-                .map { $0.value }
-        )
+    private var tags: [String] {
+        return logger.logs
+            .flatMap { $0.metadata.tags }
+            .map { $0.value }
     }
     
-    @State private var _filteredTags: OrderedSet<String> = []
-    private var filteredTags: OrderedSet<String> {
+    @State private var _filteredTags: [String] = []
+    private var filteredTags: [String] {
         get {
-            _filteredTags.isEmpty ? OrderedSet(tags) : _filteredTags
+            _filteredTags.isEmpty ? tags : _filteredTags
         }
     }
     private var navigationTitle: String {
@@ -114,7 +112,7 @@ public struct LoggerView: View {
         .sheet(isPresented: $isPresentedFilter) {
             LogFilterView(
                 isPresented: $isPresentedFilter,
-                allTags: Array(tags),
+                allTags: tags,
                 selectedTags: $_filteredTags
             )
         }
