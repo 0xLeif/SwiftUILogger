@@ -1,10 +1,28 @@
 import SwiftUI
+import OrderedCollections
 
 ///
 public struct LoggerView: View {
+    
     @ObservedObject private var logger: SwiftUILogger
     @State private var isMinimal: Bool = true
+    @State private var isPresentedFilter: Bool = false
     
+    private var tags: [String] {
+        return logger.logs
+            .flatMap { $0.metadata.tags }
+            .map { $0.value }
+    }
+    
+    @State private var _filteredTags: [String] = []
+    private var filteredTags: [String] {
+        get {
+            _filteredTags.isEmpty ? tags : _filteredTags
+        }
+    }
+    private var navigationTitle: String {
+        "\(logger.logs.count) \(logger.name.map { "\($0) " } ?? "")Events"
+    }
     private let shareAction: (String) -> Void
     
     ///
@@ -28,38 +46,28 @@ public struct LoggerView: View {
                         LazyVStack {
                             let logCount = logger.logs.count - 1
                             ForEach(0 ... logCount, id: \.self) { index in
-                                LogEventView(
-                                    event: logger.logs[logCount - index],
-                                    isMinimal: isMinimal
-                                )
-                                .padding(.horizontal, 4)
+                                let log = logger.logs[logCount - index]
+                                
+                                if log.metadata.tags.first(
+                                    where: { filteredTags.contains($0.value) }
+                                ) != nil {
+                                    LogEventView(
+                                        event: log,
+                                        isMinimal: isMinimal
+                                    )
+                                    .padding(.horizontal, 4)
+                                }
                             }
                         }
                     }
                 }
             }
-            .navigationTitle("\(logger.logs.count) \(logger.name.map { "\($0) " } ?? "")Events")
+            .navigationTitle(navigationTitle)
             .toolbar {
                 HStack {
-                    Button(
-                        action: {
-                            shareAction(logger.blob)
-                        },
-                        label: {
-                            Image(systemName: "square.and.arrow.up")
-                        }
-                    )
-                    
-                    Button(
-                        action: {
-                            withAnimation {
-                                isMinimal.toggle()
-                            }
-                        },
-                        label: {
-                            Image(systemName: isMinimal ? "list.bullet.circle" : "list.bullet.circle.fill")
-                        }
-                    )
+                    shareBlobButton
+                    filterButton
+                    toggleMinimalButton
                 }
                 .disabled(logger.logs.isEmpty)
             }
@@ -77,6 +85,50 @@ public struct LoggerView: View {
                 content()
             }
         }
+    }
+    
+    private var shareBlobButton: some View {
+        Button(
+            action: {
+                shareAction(logger.blob)
+            },
+            label: {
+                Image(systemName: "square.and.arrow.up")
+            }
+        )
+    }
+    
+    private var filterButton: some View {
+        Button(
+            action: {
+                withAnimation {
+                    isPresentedFilter.toggle()
+                }
+            },
+            label: {
+                Image(systemName: "line.3.horizontal.decrease.circle")
+            }
+        )
+        .sheet(isPresented: $isPresentedFilter) {
+            LogFilterView(
+                isPresented: $isPresentedFilter,
+                allTags: tags,
+                selectedTags: $_filteredTags
+            )
+        }
+    }
+    
+    private var toggleMinimalButton: some View {
+        Button(
+            action: {
+                withAnimation {
+                    isMinimal.toggle()
+                }
+            },
+            label: {
+                Image(systemName: isMinimal ? "list.bullet.circle" : "list.bullet.circle.fill")
+            }
+        )
     }
 }
 

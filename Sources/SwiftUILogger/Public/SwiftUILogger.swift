@@ -32,12 +32,12 @@ open class SwiftUILogger: ObservableObject {
         public struct Metadata {
             public let file: StaticString
             public let line: Int
-            public let tags: [AnyHashable]
+            public let tags: [any LogTagging]
             
             public init(
                 file: StaticString,
                 line: Int,
-                tags: [AnyHashable]
+                tags: [any LogTagging]
             ) {
                 self.file = file
                 self.line = line
@@ -86,7 +86,7 @@ open class SwiftUILogger: ObservableObject {
             level: Level,
             message: String,
             error: Error? = nil,
-            tags: [AnyHashable] = [],
+            tags: [any LogTagging] = [],
             _ file: StaticString = #fileID,
             _ line: Int = #line
         ) {
@@ -150,7 +150,7 @@ open class SwiftUILogger: ObservableObject {
         level: Level,
         message: String,
         error: Error? = nil,
-        tags: [AnyHashable] = [],
+        tags: [any LogTagging] = [],
         _ file: StaticString = #fileID,
         _ line: Int = #line
     ) {
@@ -178,7 +178,7 @@ open class SwiftUILogger: ObservableObject {
     ///
     open func success(
         message: String,
-        tags: [AnyHashable],
+        tags: [any LogTagging],
         _ file: StaticString = #fileID,
         _ line: Int = #line
     ) {
@@ -195,7 +195,7 @@ open class SwiftUILogger: ObservableObject {
     ///
     open func info(
         message: String,
-        tags: [AnyHashable],
+        tags: [any LogTagging],
         _ file: StaticString = #fileID,
         _ line: Int = #line
     ) {
@@ -212,7 +212,7 @@ open class SwiftUILogger: ObservableObject {
     ///
     open func warning(
         message: String,
-        tags: [AnyHashable],
+        tags: [any LogTagging],
         _ file: StaticString = #fileID,
         _ line: Int = #line
     ) {
@@ -230,7 +230,7 @@ open class SwiftUILogger: ObservableObject {
     open func error(
         message: String,
         error: Error?,
-        tags: [AnyHashable],
+        tags: [any LogTagging],
         _ file: StaticString = #fileID,
         _ line: Int = #line
     ) {
@@ -248,7 +248,7 @@ open class SwiftUILogger: ObservableObject {
     open func fatal(
         message: String,
         error: Error?,
-        tags: [AnyHashable],
+        tags: [any LogTagging],
         _ file: StaticString = #fileID,
         _ line: Int = #line
     ) {
