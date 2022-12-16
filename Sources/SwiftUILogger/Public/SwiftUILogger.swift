@@ -1,4 +1,5 @@
 import SwiftUI
+import OrderedCollections
 
 ///
 open class SwiftUILogger: ObservableObject {
@@ -106,20 +107,33 @@ open class SwiftUILogger: ObservableObject {
     ///
     public static var `default`: SwiftUILogger = SwiftUILogger()
     
+    ///
     private var lock: NSLock
     
     ///
     public let name: String?
     
     ///
+    @Published var filteredTags: OrderedSet<String>
+
+    ///
     @Published public var logs: [Event]
+    public var displayedLogs: [Event] {
+        return filteredTags.isEmpty
+        ? logs
+        : logs.filter {
+            $0.metadata.tags.first(
+                where: { filteredTags.contains($0.value) }
+            ) != nil
+        }
+    }
     
     ///
     open var blob: String {
         lock.lock()
         defer { lock.unlock() }
         
-        return logs
+        return displayedLogs
             .map { (event) -> String in
                 let date = Event.dateFormatter.string(from: event.dateCreated)
                 let time = Event.timeFormatter.string(from: event.dateCreated)
@@ -143,6 +157,8 @@ open class SwiftUILogger: ObservableObject {
         self.lock = NSLock()
         self.name = name
         self.logs = logs
+        
+        self.filteredTags = []
     }
     
     ///
