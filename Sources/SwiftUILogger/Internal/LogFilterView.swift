@@ -11,35 +11,38 @@ import OrderedCollections
 
 struct LogFilterView: View {
     
+    @ObservedObject private var logger: SwiftUILogger
     @State private var searchText: String = ""
     @State private var contentSize: CGSize = .zero
-    @State private var filteredTags: OrderedSet<String> = []
-    @Binding private var selectedTags: [String]
+    @State private var displayedTags: [String] = []
+    @State private var selectedTags: OrderedSet<String>
     
     private var isPresented: Binding<Bool>
     
-    private var allTags: [String]
+    private var tags: [String]
     
     init(
-        isPresented: Binding<Bool>,
-        allTags: [String],
-        selectedTags: Binding<[String]>
+        logger: SwiftUILogger = .default,
+        tags: [String],
+        isPresented: Binding<Bool>
     ) {
+        self.logger = logger
+        self.tags = tags
         self.isPresented = isPresented
-        self.allTags = allTags
-        self._selectedTags = selectedTags
+        
+        self.selectedTags = logger.filteredTags
     }
     
     var body: some View {
-        return navigation {
+        navigation {
             VStack {
                 searchBar
-                
+
                 Divider()
                     .padding(.vertical, 5)
-                
+
                 tagListView
-                
+
                 Spacer()
             }
             .toolbar {
@@ -72,9 +75,8 @@ struct LogFilterView: View {
             searchText: $searchText,
             placeholder: "Search for tags"
         )
-        .navigationTitle("Filter")
         .onReceive(Just(searchText)) { keyword in
-            filteredTags = onSearchKeyword(keyword)
+            displayedTags = onSearchKeyword(keyword)
         }
     }
     
@@ -85,21 +87,15 @@ struct LogFilterView: View {
                     columns: [GridItem(.flexible())],
                     spacing: 8
                 ) {
-                    ForEach(filteredTags, id: \.self) { tagName in
-                        LogTagView(
-                            name: tagName,
-                            isSelected: selectedTags.contains(tagName),
-                            onTapped: { isTapped in
-                                if isTapped,
-                                   let index = filteredTags.firstIndex(of: tagName) {
-                                    selectedTags.append(filteredTags[index])
-
-                                } else if let index = selectedTags.firstIndex(of: tagName) {
-                                    selectedTags.remove(at: index)
-                                }
-                            }
-                        )
+                    Group {
+                        ForEach(displayedTags, id: \.self) { tagName in
+                            LogTagView(
+                                name: tagName,
+                                selectedTags: $selectedTags
+                            )
+                        }
                     }
+                    .navigationTitle("Filter")
                 }
                 .background(Color.clear)
             }
@@ -116,13 +112,14 @@ struct LogFilterView: View {
     private var saveToolbarItem: some View {
         Button("Apply") {
             isPresented.wrappedValue = false
+            logger.filteredTags = selectedTags
         }
     }
     
     // MARK: Helpers
     
-    private func onSearchKeyword(_ keyword: String) -> OrderedSet<String> {
-        let filtered: [String] = allTags.filter {
+    private func onSearchKeyword(_ keyword: String) -> [String] {
+        let filtered: [String] = tags.filter {
             $0
                 .lowercased()
                 .range(
@@ -131,6 +128,6 @@ struct LogFilterView: View {
                 ) != nil
         }
 
-        return filtered.isEmpty ? OrderedSet(allTags) : OrderedSet(filtered)
+        return filtered.isEmpty ? tags : filtered
     }
 }
