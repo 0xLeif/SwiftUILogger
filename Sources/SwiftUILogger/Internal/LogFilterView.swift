@@ -51,7 +51,13 @@ struct LogFilterView: View {
                 }
     
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    saveToolbarItem
+                    HStack(spacing: 5) {
+                        if selectedTags.isEmpty == false {
+                            clearToolbarItem
+                        }
+                        
+                        saveToolbarItem
+                    }
                 }
             }
         }
@@ -109,10 +115,16 @@ struct LogFilterView: View {
         }
     }
     
+    private var clearToolbarItem: some View {
+        Button("Clear") {
+            selectedTags = []
+        }
+    }
+    
     private var saveToolbarItem: some View {
         Button("Apply") {
-            isPresented.wrappedValue = false
             logger.filteredTags = selectedTags
+            isPresented.wrappedValue = false
         }
     }
     
