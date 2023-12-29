@@ -4,24 +4,22 @@ import OrderedCollections
 ///
 public struct LoggerView: View {
     
-    @ObservedObject private var logger: SwiftUILogger
+    @StateObject private var logger: SwiftUILogger
     @State private var isMinimal: Bool = true
     @State private var isPresentedFilter: Bool = false
     
-    private var tags: [String] {
-        return logger.logs
-            .flatMap { $0.metadata.tags }
-            .map { $0.value }
+    private var logs: [SwiftUILogger.Event] { logger.displayedLogs }
+    
+    private var tags: OrderedSet<String> {
+        OrderedSet(
+            logger.logs
+                .flatMap { $0.metadata.tags }
+                .map { $0.value }
+        )
     }
     
-    @State private var _filteredTags: [String] = []
-    private var filteredTags: [String] {
-        get {
-            _filteredTags.isEmpty ? tags : _filteredTags
-        }
-    }
     private var navigationTitle: String {
-        "\(logger.logs.count) \(logger.name.map { "\($0) " } ?? "")Events"
+        "\(logs.count) \(logger.name.map { "\($0) " } ?? "")Events"
     }
     private let shareAction: (String) -> Void
     
@@ -30,7 +28,7 @@ public struct LoggerView: View {
         logger: SwiftUILogger = .default,
         shareAction: @escaping (String) -> Void = { print($0) }
     ) {
-        self.logger = logger
+        self._logger = StateObject(wrappedValue: logger)
         self.shareAction = shareAction
     }
     
@@ -38,25 +36,21 @@ public struct LoggerView: View {
     public var body: some View {
         navigation {
             Group {
-                if logger.logs.isEmpty {
+                if logs.isEmpty {
                     Text("Logs will show up here!")
                         .font(.largeTitle)
                 } else {
                     ScrollView {
                         LazyVStack {
-                            let logCount = logger.logs.count - 1
+                            let logCount = logs.count - 1
                             ForEach(0 ... logCount, id: \.self) { index in
-                                let log = logger.logs[logCount - index]
+                                let log = logs[logCount - index]
                                 
-                                if log.metadata.tags.first(
-                                    where: { filteredTags.contains($0.value) }
-                                ) != nil {
-                                    LogEventView(
-                                        event: log,
-                                        isMinimal: isMinimal
-                                    )
-                                    .padding(.horizontal, 4)
-                                }
+                                LogEventView(
+                                    event: log,
+                                    isMinimal: isMinimal
+                                )
+                                .padding(.horizontal, 4)
                             }
                         }
                     }
@@ -69,7 +63,7 @@ public struct LoggerView: View {
                     filterButton
                     toggleMinimalButton
                 }
-                .disabled(logger.logs.isEmpty)
+                .disabled(logs.isEmpty)
             }
         }
     }
@@ -111,9 +105,9 @@ public struct LoggerView: View {
         )
         .sheet(isPresented: $isPresentedFilter) {
             LogFilterView(
-                isPresented: $isPresentedFilter,
-                allTags: tags,
-                selectedTags: $_filteredTags
+                logger: logger,
+                tags: Array(tags),
+                isPresented: $isPresentedFilter
             )
         }
     }

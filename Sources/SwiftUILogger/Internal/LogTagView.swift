@@ -6,24 +6,30 @@
 //
 
 import SwiftUI
+import OrderedCollections
 
 struct LogTagView: View {
     
-    @State var isSelected: Bool = false
+    @Binding private var selectedTags: OrderedSet<String>
+    
+    var isSelected: Bool {
+        selectedTags.contains(name)
+    }
 
     private let name: String
-    private var onTapped: (_ isSelected: Bool) -> Void
     
-    init(name: String, isSelected: Bool, onTapped: @escaping (_ isSelected: Bool) -> Void) {
+    init(name: String, selectedTags: Binding<OrderedSet<String>>) {
         self.name = name
-        self.isSelected = isSelected
-        self.onTapped = onTapped
+        self._selectedTags = selectedTags
     }
     
     var body: some View {
-        Button {
-            isSelected.toggle()
-            onTapped(isSelected)
+        return Button {
+            if isSelected {
+                selectedTags.remove(name)
+            } else {
+                selectedTags.append(name)
+            }
         } label: {
             ZStack {
                 HStack {
